@@ -54,7 +54,7 @@ if prompt := st.chat_input():
     # st.chat_message("assistant").write(msg)
 
 
-    url = "http://109.199.116.46"
+    url = "https://109.199.116.46"
     headers = {
         "Authorization": "AAAAC3NzaC1lZDI1NTE5AAAAIG5PyAx3VlbI8441XShYE7BPHb2DA+b2D2n8Ku6PPaWx",  # If your API requires a key
         "Content-Type": "application/json",
