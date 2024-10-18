@@ -30,7 +30,7 @@ if prompt := st.chat_input():
         st.info("Please add your company name to continue.")
         st.stop()
     tools = [cat_facts]
-    client = Client(host="http://109.199.116.46/")
+    client = Client(host="http://109.199.116.46")
     print("MMMMMM", st.session_state.messages)
     response =client.chat(model="llama3.2:latest", messages=[{"role": "user", "content": st.session_state.messages}], stream=True)
     # model = ChatOllama(model="llama3.2:latest", base_url="https://verifyaisy.com/ollama/").bind_tools(tools=tools)
@@ -54,7 +54,7 @@ if prompt := st.chat_input():
     st.chat_message("assistant").write(msg)
 
 
-    # url = "http://109.199.116.46/"
+    # url = "http://109.199.116.46"
     # headers = {
     #     "Authorization": "AAAAC3NzaC1lZDI1NTE5AAAAIG5PyAx3VlbI8441XShYE7BPHb2DA+b2D2n8Ku6PPaWx",  # If your API requires a key
     #     "Content-Type": "application/json",
