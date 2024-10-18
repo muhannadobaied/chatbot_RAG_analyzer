@@ -66,7 +66,7 @@ if prompt := st.chat_input():
 
     response = requests.post(url, headers=headers, json=data)
     print("RESRRSRSRS", response)
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    st.session_state.messages.append({"role": "assistant", "content": response.json()})
     if response.status_code == 200:
         print("Success:", response.json())
     else:
