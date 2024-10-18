@@ -43,15 +43,15 @@ if prompt := st.chat_input():
     #     "input" : st.session_state.messages
     # })
     print("RESPONSE", response)
-    full_answer = ''
-    for chunk in response:
-        print(chunk['message']['content'], end='', flush=True)
-        full_answer =''.join([full_answer,chunk['message']['content']])
+    # full_answer = ''
+    # for chunk in response:
+    #     print(chunk['message']['content'], end='', flush=True)
+    #     full_answer =''.join([full_answer,chunk['message']['content']])
 
-    msg = full_answer
-    msg = response
-    st.session_state.messages.append({"role": "assistant", "content": msg})
-    st.chat_message("assistant").write(msg)
+    # msg = full_answer
+    # msg = response
+    # st.session_state.messages.append({"role": "assistant", "content": msg})
+    # st.chat_message("assistant").write(msg)
 
 
     url = "http://109.199.116.46"
