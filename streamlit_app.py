@@ -54,19 +54,19 @@ if prompt := st.chat_input():
     st.chat_message("assistant").write(msg)
 
 
-    # url = "http://109.199.116.46"
-    # headers = {
-    #     "Authorization": "AAAAC3NzaC1lZDI1NTE5AAAAIG5PyAx3VlbI8441XShYE7BPHb2DA+b2D2n8Ku6PPaWx",  # If your API requires a key
-    #     "Content-Type": "application/json",
-    # }
+    url = "http://109.199.116.46"
+    headers = {
+        "Authorization": "AAAAC3NzaC1lZDI1NTE5AAAAIG5PyAx3VlbI8441XShYE7BPHb2DA+b2D2n8Ku6PPaWx",  # If your API requires a key
+        "Content-Type": "application/json",
+    }
 
-    # data = {
-    #     "messages": [{"role": "user", "content": "Hello!"}]
-    # }
+    data = {
+        "messages": [{"role": "user", "content": "Hello!"}]
+    }
 
-    # response = requests.post(url, headers=headers, json=data)
-    # st.session_state.messages.append({"role": "assistant", "content": response})
-    # if response.status_code == 200:
-    #     print("Success:", response.json())
-    # else:
-    #     print("Error:", response.status_code, response.text)
+    response = requests.post(url, headers=headers, json=data)
+    st.session_state.messages.append({"role": "assistant", "content": response})
+    if response.status_code == 200:
+        print("Success:", response.json())
+    else:
+        print("Error:", response.status_code, response.text)
