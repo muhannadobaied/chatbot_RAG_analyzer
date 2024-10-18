@@ -61,7 +61,6 @@ if prompt := st.chat_input():
     }
 
     data = {
-        "messages": [{"role": "user", "content": "Hello!"}]
     }
 
     response = requests.post(url, headers=headers, json=data)
