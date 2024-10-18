@@ -7,6 +7,7 @@ from langchain import hub
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 import json
 import requests
+from ollama import Client
 with st.sidebar:
     company_name = st.text_input("Company Name",key="company_name",type="default")
     ("this is your session for company")
@@ -29,16 +30,43 @@ if prompt := st.chat_input():
         st.info("Please add your company name to continue.")
         st.stop()
     tools = [cat_facts]
-    model = ChatOllama(model="llama3.2:latest").bind_tools(tools=tools)
-    prompt = hub.pull("hwchase17/openai-tools-agent")
-    agent = create_tool_calling_agent(model, tools, prompt)
-    client = AgentExecutor(agent=agent, tools=tools, verbose=True)
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    st.chat_message("user").write(prompt)
-    response = client.invoke(input={
-        "input" : st.session_state.messages
-    })
+    client = Client(host="https://verifyaisy.com/ollama/")
+    print("MMMMMM", st.session_state.messages)
+    response =client.chat(model="llama3.2:latest", messages=[{"role": "user", "content": st.session_state.messages}], stream=True)
+    # model = ChatOllama(model="llama3.2:latest", base_url="https://verifyaisy.com/ollama/").bind_tools(tools=tools)
+    # prompt = hub.pull("hwchase17/openai-tools-agent")
+    # agent = create_tool_calling_agent(model, tools, prompt)
+    # client = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    # st.session_state.messages.append({"role": "user", "content": prompt})
+    # st.chat_message("user").write(prompt)
+    # response = client.invoke(input={
+    #     "input" : st.session_state.messages
+    # })
     print("RESPONSE", response)
+    full_answer = ''
+    for chunk in response:
+        print(chunk['message']['content'], end='', flush=True)
+        full_answer =''.join([full_answer,chunk['message']['content']])
+
+    msg = full_answer
     msg = response
     st.session_state.messages.append({"role": "assistant", "content": msg})
     st.chat_message("assistant").write(msg)
+
+
+    url = "https://verifyaisy.com/ollama/api/chat"
+    headers = {
+        "Authorization": "AAAAC3NzaC1lZDI1NTE5AAAAIG5PyAx3VlbI8441XShYE7BPHb2DA+b2D2n8Ku6PPaWx",  # If your API requires a key
+        "Content-Type": "application/json",
+    }
+
+    data = {
+        "messages": [{"role": "user", "content": "Hello!"}]
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    st.session_state.messages.append({"role": "assistant", "content": response.json()})
+    if response.status_code == 200:
+        print("Success:", response.json())
+    else:
+        print("Error:", response.status_code, response.text)
