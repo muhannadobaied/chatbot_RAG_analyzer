@@ -29,10 +29,10 @@ if prompt := st.chat_input():
     if not company_name:
         st.info("Please add your company name to continue.")
         st.stop()
-    tools = [cat_facts]
-    client = Client(host="http://109.199.116.46")
-    print("MMMMMM", st.session_state.messages)
-    response =client.chat(model="llama3.2:latest", messages=[{"role": "user", "content": st.session_state.messages}], stream=True)
+    # tools = [cat_facts]
+    # client = Client(host="http://109.199.116.46")
+    # print("MMMMMM", st.session_state.messages)
+    # response =client.chat(model="llama3.2:latest", messages=[{"role": "user", "content": st.session_state.messages}], stream=True)
     # model = ChatOllama(model="llama3.2:latest", base_url="https://verifyaisy.com/ollama/").bind_tools(tools=tools)
     # prompt = hub.pull("hwchase17/openai-tools-agent")
     # agent = create_tool_calling_agent(model, tools, prompt)
@@ -42,7 +42,7 @@ if prompt := st.chat_input():
     # response = client.invoke(input={
     #     "input" : st.session_state.messages
     # })
-    print("RESPONSE", response)
+    # print("RESPONSE", response)
     # full_answer = ''
     # for chunk in response:
     #     print(chunk['message']['content'], end='', flush=True)
@@ -65,6 +65,7 @@ if prompt := st.chat_input():
     }
 
     response = requests.post(url, headers=headers, json=data)
+    print("RESRRSRSRS", response)
     st.session_state.messages.append({"role": "assistant", "content": response})
     if response.status_code == 200:
         print("Success:", response.json())
