@@ -8,15 +8,29 @@ from langchain.agents import AgentExecutor, create_tool_calling_agent
 import json
 import requests
 from ollama import Client
+st.markdown("""
+<style>
+body, html {
+    direction: RTL;
+    unicode-bidi: bidi-override;
+    text-align: right;
+}
+
+</style>
+""", unsafe_allow_html=True)
 with st.sidebar:
-    company_name = st.text_input("Company Name",key="company_name",type="default")
-    ("this is your session for company")
-st.title("OSH project for Reputation Management System")
+    company_name = st.text_input("اسم الشركة",key="company_name",type="default")
+    ("هذه جلسة خاصة بشركتك")
+# st.html("")
+st.title("شركة OSH")
 st.write(
-    "Start by typing your company name."
+    "نظام ادارة السمعة للشركات"
+)
+st.write(
+    "ابدء بكتابة اسم الشركة الرسمي التجاري."
 )
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
+    st.session_state["messages"] = [{"role": "assistant", "content": "مرحبا كيف يمكنني مساعدتك"}]
 
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
@@ -27,7 +41,7 @@ def cat_facts():
 
 if prompt := st.chat_input():
     if not company_name:
-        st.info("Please add your company name to continue.")
+        st.info("لطفا قم بادخال اسم شركتك")
         st.stop()
     tools = [cat_facts]
     # client = Client(host="http://109.199.116.46", verify=False)
