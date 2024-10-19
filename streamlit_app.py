@@ -29,20 +29,27 @@ if prompt := st.chat_input():
     if not company_name:
         st.info("Please add your company name to continue.")
         st.stop()
-    # tools = [cat_facts]
-    # client = Client(host="http://109.199.116.46")
+    tools = [cat_facts]
+    # client = Client(host="http://109.199.116.46", verify=False)
     # print("MMMMMM", st.session_state.messages)
     # response =client.chat(model="llama3.2:latest", messages=[{"role": "user", "content": st.session_state.messages}], stream=True)
-    # model = ChatOllama(model="llama3.2:latest", base_url="https://verifyaisy.com/ollama/").bind_tools(tools=tools)
+
+    # model = ChatOllama(model="llama3.2", base_url="http://109.199.116.46",client_kwargs={'verify': False}).bind_tools(tools=tools)
     # prompt = hub.pull("hwchase17/openai-tools-agent")
     # agent = create_tool_calling_agent(model, tools, prompt)
     # client = AgentExecutor(agent=agent, tools=tools, verbose=True)
     # st.session_state.messages.append({"role": "user", "content": prompt})
     # st.chat_message("user").write(prompt)
-    # response = client.invoke(input={
-    #     "input" : st.session_state.messages
-    # })
-    # print("RESPONSE", response)
+    # try:
+    #     response = client.invoke(input={"input": st.session_state.messages})
+    #     print("RESPONSE", response)
+    #     st.session_state.messages.append({"role": "assistant", "content": response})
+    #     st.chat_message("assistant").write(msg)
+    # except Exception as e:
+    #     st.session_state.messages.append({"role": "assistant", "content": str(e)})
+    #     st.chat_message("assistant").write(str(e))
+    #     print("Error invoking the client:", str(e))
+
     # full_answer = ''
     # for chunk in response:
     #     print(chunk['message']['content'], end='', flush=True)
@@ -50,23 +57,52 @@ if prompt := st.chat_input():
 
     # msg = full_answer
     # msg = response
-    # st.session_state.messages.append({"role": "assistant", "content": msg})
+    # st.session_state.messages.append({"role": "assistant", "content": response})
     # st.chat_message("assistant").write(msg)
 
 
-    url = "https://109.199.116.46"
-    headers = {
-        "Authorization": "AAAAC3NzaC1lZDI1NTE5AAAAIG5PyAx3VlbI8441XShYE7BPHb2DA+b2D2n8Ku6PPaWx",  # If your API requires a key
-        "Content-Type": "application/json",
-    }
+    # url = "http://109.199.116.46"
+    # headers = {
+    #     "Authorization": "AAAAC3NzaC1lZDI1NTE5AAAAIG5PyAx3VlbI8441XShYE7BPHb2DA+b2D2n8Ku6PPaWx",  # If your API requires a key
+    #     "Content-Type": "application/json",
+    # }
 
-    data = {
-    }
+    # data = {
+    # }
+    model = ChatOllama(model="llama3.2", base_url="https://109.199.116.46", client_kwargs={'verify': False}).bind_tools(tools=tools)
+    aiprompt = hub.pull("hwchase17/openai-tools-agent")
+    agent = create_tool_calling_agent(model, tools, aiprompt)
+    client = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
-    response = requests.post(url, headers=headers, json=data)
-    print("RESRRSRSRS", response)
-    st.session_state.messages.append({"role": "assistant", "content": response.json()})
-    if response.status_code == 200:
-        print("Success:", response.json())
-    else:
-        print("Error:", response.status_code, response.text)
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.chat_message("user").write(prompt)
+
+    try:
+        response = client.invoke(input={"input": st.session_state.messages})
+        print("RESPONSE", response)
+        msg = response["output"]
+        st.session_state.messages.append({"role": "assistant", "content": msg})
+        st.chat_message("assistant").write(msg)  # Changed msg to response to avoid undefined variable
+    except Exception as e:
+        st.session_state.messages.append({"role": "assistant", "content": str(e)})
+        st.chat_message("assistant").write(str(e))
+        print("Error invoking the client:", str(e))
+    # response = requests.post(url, verify=False)
+    # print("RESRRSRSRS", response)
+    # st.session_state.messages.append({"role": "assistant", "content": response})
+    # if response.status_code == 200:
+    #     print("Success:", response)
+    # else:
+    #     print("Error:", response.status_code, response.text)
+    
+    # headers = {
+    # "Content-Type": "application/json",
+    # }
+
+    # data = {
+    #     "model": "llama3.2"
+    # }
+
+    # response = requests.post("https://109.199.116.46/api/chat", json=data, headers=headers, verify=False)
+
+    # print("Response:", response)
