@@ -4,3 +4,5 @@ langchain_community
 langchain-ollama 
 ollama
 python-gettext
+st-pages
+langchain-google-genai
