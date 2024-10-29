@@ -4,3 +4,12 @@ langchain_community
 langchain-ollama 
 ollama
 python-gettext
+st-pages
+beautifulsoup4
+goose3
+python-docx
+langchain_google_community
+TikTokApi
+requests>=2.31.0,<3.0
+playwright>=1.36.0,<2.0
+httpx>=0.27.0,<1.0

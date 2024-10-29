@@ -1,0 +1,17 @@
+
+
+[[pages]]
+path = "app_pages/data_collection.py"
+name = "Searching"
+icon = ":material/search:"
+
+[[pages]]
+path = "app_pages/saved_searches.py"
+name = "Generate Reports"
+icon = ":material/history:"
+
+
+[[pages]]
+path = "app_pages/chat_bot_with_search_online.py"
+name = "Chat & Analyze with Web Search Tools"
+icon = ":material/chat:"

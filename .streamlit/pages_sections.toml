@@ -1,0 +1,37 @@
+[[pages]]
+name = "Searching Analyze and Reports"
+icon = "📄"
+is_section = true
+
+[[pages]]
+path = "app_pages/data_collection.py"
+name = "Search"
+icon = ":material/search:"
+
+[[pages]]
+path = "app_pages/saved_searches.py"
+name = "Generate Reports"
+icon = ":material/history:"
+
+[[pages]]
+name = "Chat with Web Search"
+icon = ":robot_face:"
+is_section = true
+
+
+[[pages]]
+path = "app_pages/chat_bot_with_search_online.py"
+name = "Chat & Analyze with Web Search Tools"
+icon = ":material/chat:"
+
+
+[[pages]]
+name = "Search Tiktok"
+icon = ":robot_face:"
+is_section = true
+
+
+[[pages]]
+path = "app_pages/tiktok_scraping.py"
+name = "Tiktok Search Tools"
+icon = ":material/search:"
