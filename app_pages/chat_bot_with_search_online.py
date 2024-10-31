@@ -34,6 +34,8 @@ body, html {
 
 </style>
 """, unsafe_allow_html=True)
+
+os.environ['USER_AGENT'] = "MyCustomUserAgent/1.0 (compatible; OSH-Bot/1.0)"
 # with st.sidebar:
 #     company_name = st.text_input("اسم الشركة",key="company_name",type="default")
 #     ("هذه جلسة خاصة بشركتك")
@@ -80,12 +82,22 @@ def scrape_webpages(urls: Union[List[str], str]) -> str:
     
     return "\n\n".join(scraped_articles)
 
+@tool 
+def pass_text(input: str) -> str:
+    """Returns same text enter by user and you have to responed to the user using the same language the user use."""
+    return ""
+
 if prompt := st.chat_input():
     GOOGLE_CSE_ID = os.getenv('GOOGLE_CSE_ID', 'b13bba6a528214af0')
     GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'AIzaSyC_0LAqVIA0Z7YLbbWKSOHxY0_sMaqQAko')
     # tools = [WebResearchRetriever(num_search_results=3,search=GoogleSearchAPIWrapper(google_api_key=GOOGLE_API_KEY, google_cse_id=GOOGLE_CSE_ID), allow_dangerous_requests=True)]
     # tools = [GoogleSearchResults(num_results=4,api_wrapper=GoogleSearchAPIWrapper(google_api_key=GOOGLE_API_KEY, google_cse_id=GOOGLE_CSE_ID))]
-    toolkit = [
+    tools = [
+        Tool(
+        name = "Pass_Text",
+        func=pass_text,
+        description="You are a assistant just pass the text. "
+        ),
         GoogleSearchResults(num_results=4,api_wrapper=GoogleSearchAPIWrapper(google_api_key=GOOGLE_API_KEY, google_cse_id=GOOGLE_CSE_ID)),
         Tool(
         name = "Scrape_Webpages",
@@ -93,22 +105,32 @@ if prompt := st.chat_input():
         description="You are a research assistant who can scrape specified urls for more detailed information using the scrape_webpages function."
         ),
     ]
-    llm = ChatOllama(model="llama3.1:8b", num_ctx=16384, temperature = 0, callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),base_url="https://109.199.116.46", client_kwargs={'verify': False}).bind_tools(tools=toolkit)
+    # 
+    llm = ChatOllama(model="llama3.1:8b", num_ctx=16384, temperature = 0, callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]), base_url="https://109.199.116.46", client_kwargs={'verify': False}).bind_tools(tools=tools)
     # aiprompt = hub.pull("hwchase17/openai-tools-agent")
     # aiprompt.messages[0] = SystemMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], input_types={}, partial_variables={}, template='You are a helpful assistant with the personality of Socrates. Be super verbose and philosophical'))
     # memory = MemorySaver()
     # MEMORY_KEY = "chat_history"
     # prompts = hub.pull("hwchase17/openai-tools-agent")
-    # prompts.messages[0] = SystemMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], input_types={}, partial_variables={}, template="You are a powerful assistant created by OSH company. You can engage professionally in general conversations on any topic, responding in the user's language. Maintain a professional, analytical tone, and present both positive and negative insights based on gathered information in clear, well-formatted markdown. Use the toolkit *only* if the answer is missing or outdated in your knowledge, or if the user explicitly requests a web search."))
+    # prompts.messages[0] = SystemMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], input_types={}, partial_variables={}, template="You are a powerful assistant created by OSH company. You can engage professionally in general conversations on any topic, responding in the user's language. Maintain a professional, analytical tone, and present both positive and negative insights based on gathered information in clear, well-formatted markdown. Use the tools *only* if the answer is missing or outdated in your knowledge, or if the user explicitly requests a web search."))
     # chat_history = []
     # MEMORY_KEY = "chat_history"
     prompts = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
-                "You are a powerful assistant created by OSH company. You can engage professionally in general conversations on any topic, use the user's language to respond. Maintain a professional, analytical tone, and present both positive and negative insights based on gathered information in clear, well-formatted markdown. Use the toolkit *only* if the answer is missing or outdated in your knowledge, or if the user explicitly requests a web search.",
+                (
+                    "You are a powerful assistant created by OSH (Open Source Handbook) company. "
+                    "Engage professionally in conversations on any topic, always responding strictly in the user's language, including when using any tool. "
+                    "Do not switch to another language unless explicitly requested by the user.\n\n"
+                    "Maintain a professional, analytical tone, presenting both positive and negative insights in clear, well-formatted markdown.\n\n"
+                    "Use the `pass_text` tool to echo user input or to handle tasks that do not require external information retrieval. "
+                    "Use other tools only under these conditions, and ensure all responses are in the user's language:\n"
+                    "- If information is missing or outdated in your knowledge base, use the `google_search_results_json` tool.\n"
+                    "- If the user explicitly requests a web search, use the `google_search_results_json` tool.\n"
+                    "- If the user requests the full source article, use the `Scrape_Webpages` tool."
+                ),
             ),
-            # MessagesPlaceholder(variable_name=MEMORY_KEY),
             ("user", "{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ]
@@ -129,8 +151,8 @@ if prompt := st.chat_input():
         | llm
         | OpenAIToolsAgentOutputParser()
     )
-    agent = create_tool_calling_agent(llm, toolkit, prompts)
-    client = AgentExecutor(agent=agent, tools=toolkit, verbose=True)
+    agent = create_tool_calling_agent(llm, tools, prompts)
+    client = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
