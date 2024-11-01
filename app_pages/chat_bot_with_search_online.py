@@ -19,6 +19,7 @@ from langchain.agents.format_scratchpad.openai_tools import (
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain_google_community import GoogleSearchAPIWrapper, GoogleSearchResults
+# from langchain_google_community.search import  GoogleSearchResults, GoogleSearchAPIWrapper
 from langchain.agents import Tool
 from langchain_core.tools import tool
 from langchain_community.document_loaders import WebBaseLoader
@@ -93,17 +94,17 @@ if prompt := st.chat_input():
     # tools = [WebResearchRetriever(num_search_results=3,search=GoogleSearchAPIWrapper(google_api_key=GOOGLE_API_KEY, google_cse_id=GOOGLE_CSE_ID), allow_dangerous_requests=True)]
     # tools = [GoogleSearchResults(num_results=4,api_wrapper=GoogleSearchAPIWrapper(google_api_key=GOOGLE_API_KEY, google_cse_id=GOOGLE_CSE_ID))]
     tools = [
-        Tool(
-        name = "Pass_Text",
-        func=pass_text,
-        description="You are a assistant just pass the text. "
-        ),
         GoogleSearchResults(num_results=4,api_wrapper=GoogleSearchAPIWrapper(google_api_key=GOOGLE_API_KEY, google_cse_id=GOOGLE_CSE_ID)),
         Tool(
         name = "Scrape_Webpages",
         func=scrape_webpages,
         description="You are a research assistant who can scrape specified urls for more detailed information using the scrape_webpages function."
         ),
+        Tool(
+        name = "Pass_Text",
+        func=pass_text,
+        description="You are a assistant just pass the text. "
+        )
     ]
     # 
     llm = ChatOllama(model="llama3.1:8b", num_ctx=16384, temperature = 0, callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]), base_url="https://109.199.116.46", client_kwargs={'verify': False}).bind_tools(tools=tools)
