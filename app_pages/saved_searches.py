@@ -28,7 +28,7 @@ prompts = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
-                "You are a helpful and very powerful assistant. You were created by OSH company. You are an analysis model tasked with evaluating the news articles. Please provide a detailed report that includes sentiment analysis, trends, potential impacts on reputation, and actionable suggestions based on the content.",
+                "You are a helpful and very powerful assistant. You were created by OSH company. You are an analysis model tasked with evaluating the news articles. Please provide a detailed report that includes sentiment analysis (تحليل العواطف), trends (الترندات), potential impacts on reputation, and actionable suggestions based on the content. When responed use this language {language} and make sure to use it with out mistakes.",
             ),
             # MessagesPlaceholder(variable_name=MEMORY_KEY),
             ("human", "{input}"),
@@ -38,6 +38,7 @@ prompts = ChatPromptTemplate.from_messages(
 
 agent = (
         {
+            "language": lambda x: x["language"],
             "input": lambda x: x["input"],
             "agent_scratchpad": lambda x: format_to_openai_tool_messages(
                 x["intermediate_steps"]
@@ -139,7 +140,7 @@ if analyze_button and st.session_state.selected_search_ids:
     if isinstance(model_input, list) and all(isinstance(i, str) for i in model_input):
         # Send the prepared input to the Ollama model for analysis
         try:
-            report = client.invoke(input={"input":model_input})  # Pass model_input as a list of strings
+            report = client.invoke(input={"language":"Arabic", "input":model_input, "agent_scratchpad":"agent_scratchpad"})  # Pass model_input as a list of strings
             
             # Display the generated report
             st.subheader("Generated Report:")

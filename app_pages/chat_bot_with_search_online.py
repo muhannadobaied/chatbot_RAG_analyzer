@@ -18,8 +18,8 @@ from langchain.agents.format_scratchpad.openai_tools import (
 )
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain_google_community import GoogleSearchAPIWrapper, GoogleSearchResults
-# from langchain_google_community.search import  GoogleSearchResults, GoogleSearchAPIWrapper
+# from langchain_google_community import GoogleSearchAPIWrapper, GoogleSearchResults
+from langchain_google_community.search import  GoogleSearchResults, GoogleSearchAPIWrapper
 from langchain.agents import Tool
 from langchain_core.tools import tool
 from langchain_community.document_loaders import WebBaseLoader
@@ -57,7 +57,7 @@ for msg in st.session_state.messages:
 from goose3 import Goose
 @tool
 def scrape_webpages(urls: Union[List[str], str]) -> str:
-    """Fetches content from specified URLs and returns scraped text as markdown."""
+    """Fetches content from specified URLs and returns scraped text as markdown for the user."""
     # Ensure `urls` is a list
     if isinstance(urls, str):
         urls = [urls]
@@ -86,7 +86,7 @@ def scrape_webpages(urls: Union[List[str], str]) -> str:
 @tool 
 def pass_text(input: str) -> str:
     """Returns same text enter by user and you have to responed to the user using the same language the user use."""
-    return ""
+    return input
 
 if prompt := st.chat_input():
     GOOGLE_CSE_ID = os.getenv('GOOGLE_CSE_ID', 'b13bba6a528214af0')
@@ -160,7 +160,7 @@ if prompt := st.chat_input():
 
     try:
         # response = client.invoke(input={"input": st.session_state.messages, "chat_history": chat_history})
-        response = client.invoke(input={"input": st.session_state.messages})
+        response = client.invoke(input={"input": st.session_state.messages, "agent_scratchpad":"agent_scratchpad"})
         print("RESPONSE", response)
         msg = response["output"]
         st.session_state.messages.append({"role": "assistant", "content": msg})
