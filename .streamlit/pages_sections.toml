@@ -1,37 +1,64 @@
 [[pages]]
-name = "Searching Analyze and Reports"
-icon = "📄"
+name = "Setup"
+icon = "⚙️"
 is_section = true
 
 [[pages]]
-path = "app_pages/data_collection.py"
-name = "Search"
-icon = ":material/search:"
+name = "Company Initialization and Setup"
+icon = "🏢"
+path = "pages/initialization_page.py"
 
 [[pages]]
-path = "app_pages/saved_searches.py"
-name = "Generate Reports"
-icon = ":material/history:"
-
-[[pages]]
-name = "Chat with Web Search"
-icon = ":robot_face:"
+name = "Monitoring and Analysis"
+icon = "📈"
 is_section = true
 
+[[pages]]
+name = "Real-Time Monitoring"
+icon = "🔍"
+path = "pages/monitoring_page.py"
 
 [[pages]]
-path = "app_pages/chat_bot_with_search_online.py"
-name = "Chat & Analyze with Web Search Tools"
-icon = ":material/chat:"
-
+name = "Sentiment and Predictive Analysis"
+icon = "📊"
+path = "pages/analysis_page.py"
 
 [[pages]]
-name = "Search Tiktok"
-icon = ":robot_face:"
+name = "Validation and Reporting"
+icon = "✅"
 is_section = true
 
+[[pages]]
+name = "Data Validation"
+icon = "📂"
+path = "pages/data_validation_page.py"
 
 [[pages]]
-path = "app_pages/tiktok_scraping.py"
-name = "Tiktok Search Tools"
-icon = ":material/search:"
+name = "Reporting"
+icon = "📑"
+path = "pages/reporting_page.py"
+
+[[pages]]
+name = "Alerts and Analysis"
+icon = "🚨"
+is_section = true
+
+[[pages]]
+name = "Emergency Alerts"
+icon = "🚨"
+path = "pages/alerts_page.py"
+
+[[pages]]
+name = "Chat with Bot"
+icon = "💬"
+is_section = true
+
+[[pages]]
+name = "Start Chat"
+icon = "🤖"
+path = "pages/chat_bot_with_search_online.py"
+
+[[pages]]
+name = "Influencer and Competitor Analysis"
+icon = "👥"
+path = "pages/influencer_analysis_page.py"

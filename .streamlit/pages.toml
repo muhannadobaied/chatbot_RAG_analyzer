@@ -1,17 +1,40 @@
-
+# pages.toml
+[[pages]]
+name = "Initialization and Setup"
+icon = "⚙️"
+path = "pages/initialization_page.py"
 
 [[pages]]
-path = "app_pages/data_collection.py"
-name = "Searching"
-icon = ":material/search:"
+name = "Real-Time Monitoring and Data Collection"
+icon = "📈"
+path = "pages/monitoring_page.py"
 
 [[pages]]
-path = "app_pages/saved_searches.py"
-name = "Generate Reports"
-icon = ":material/history:"
-
+name = "Sentiment and Predictive Analysis"
+icon = "📊"
+path = "pages/analysis_page.py"
 
 [[pages]]
-path = "app_pages/chat_bot_with_search_online.py"
-name = "Chat & Analyze with Web Search Tools"
-icon = ":material/chat:"
+name = "Data Validation and Selection"
+icon = "✅"
+path = "pages/data_validation_page.py"
+
+[[pages]]
+name = "Reporting and Analysis"
+icon = "📑"
+path = "pages/reporting_page.py"
+
+[[pages]]
+name = "Emergency Response and Alerts"
+icon = "🚨"
+path = "pages/alerts_page.py"
+
+[[pages]]
+name = "Start Chat"
+icon = "🤖"
+path = "pages/chat_bot_with_search_online.py"
+
+[[pages]]
+name = "Influencer and Competitor Analysis"
+icon = "👥"
+path = "pages/influencer_analysis_page.py"
