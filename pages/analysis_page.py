@@ -303,7 +303,8 @@ def display_analysis():
             y='Impact Score',
             title="Potential Impact Over Time",
             labels={'Impact Score': 'Impact Score'},
-            template='plotly_white'
+            template='plotly_white',
+            trendline="ols"  # Adding a trendline to illustrate the overall trend
         )
         fig.update_traces(mode='lines+markers')
         fig.update_layout(
