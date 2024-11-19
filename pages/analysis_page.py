@@ -297,14 +297,13 @@ def display_analysis():
         impact_data.rename(columns={'timestamp': 'Date', 'potential_impact': 'Impact Score'}, inplace=True)
     
         # Enhanced line chart with markers and a smoother curve
-        fig = px.scatter(
+        fig = px.line(
             impact_data,
-            x='Date',  # X-axis representing dates
-            y='Impact Score',  # Y-axis representing the impact score
+            x='Date',
+            y='Impact Score',
             title="Potential Impact Over Time",
             labels={'Impact Score': 'Impact Score'},
-            template='plotly_white',
-            trendline="ols"  # Adding a trendline to illustrate the overall trend
+            template='plotly_white'
         )
         fig.update_traces(mode='lines+markers')
         fig.update_layout(
