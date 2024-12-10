@@ -157,10 +157,8 @@ from st_pages import add_page_title, get_nav_from_toml
 st.set_page_config(layout="wide")
 st.markdown("""
 <style>
-body, html {
-    direction: RTL;
-    unicode-bidi: bidi-override;
-    text-align: right;
+body{
+    background-color: white;            
 }
 </style>
 """, unsafe_allow_html=True)

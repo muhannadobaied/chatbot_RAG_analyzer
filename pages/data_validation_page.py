@@ -87,8 +87,180 @@
 # # Run the page function
 # display_data_validation()
 
+# import streamlit as st
+# import sqlite3
+# from langchain_ollama import OllamaLLM  # Import the Ollama class
+# from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+# from langchain.callbacks.manager import CallbackManager
+# from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+# from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
+# from langchain.agents.format_scratchpad.openai_tools import format_to_openai_tool_messages
+# from langchain.agents import AgentExecutor
+# import json
+# # Establish connection to the database
+# def get_connection():
+#     return sqlite3.connect("reputation_management.db")
+
+# # Fetch unvalidated data from the database
+# def fetch_unvalidated_data():
+#     conn = get_connection()
+#     cursor = conn.cursor()
+#     cursor.execute("SELECT id, source, content FROM monitoring_data WHERE validated IS NULL OR validated = 0")
+#     data = cursor.fetchall()
+#     conn.close()
+#     return data
+
+# # Save analysis results to the database
+# def save_analysis_results(data_id, sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority):
+#     conn = get_connection()
+#     cursor = conn.cursor()
+
+#     # Insert sentiment analysis results
+#     print("sentiment", sentiment)
+#     cursor.execute('''
+#         INSERT INTO sentiment (overall_sentiment, reasons, monitoring_data_id)
+#         VALUES (?, ?, ?)
+#     ''', (sentiment, json.dumps(sentiment_reasons), data_id))
+
+#     # Insert reputation impact analysis results
+#     print("potential_impact", impact)
+#     print("reasons", json.dumps(impact_reasons))
+#     cursor.execute('''
+#         INSERT INTO reputation_impact (potential_impact, reasons, monitoring_data_id)
+#         VALUES (?, ?, ?)
+#     ''', (impact, json.dumps(impact_reasons), data_id))
+
+#     # Insert actionable suggestions
+#     cursor.execute('''
+#         INSERT INTO actionable_suggestions (suggestions, rationale, monitoring_data_id)
+#         VALUES (?, ?, ?)
+#     ''', (json.dumps(suggestions), json.dumps(rationale), data_id))
+
+#     # Update the monitoring_data table with validation status and priority
+#     cursor.execute('''
+#         UPDATE monitoring_data
+#         SET validated = 1, priority = ?
+#         WHERE id = ?
+#     ''', (priority, data_id))
+
+#     conn.commit()
+#     conn.close()
+
+
+
+# # Mark a data entry as validated in the database
+# def mark_as_validated(data_id, valid):
+#     conn = get_connection()
+#     cursor = conn.cursor()
+#     cursor.execute("UPDATE monitoring_data SET validated = ? WHERE id = ?", (1 if valid else 0, data_id))
+#     conn.commit()
+#     conn.close()
+
+# # Initialize the model for analysis
+# def setup_model():
+#     model = OllamaLLM(
+#         model="llama3.1:8b", 
+#         num_ctx=16384, 
+#         temperature=0, 
+#         callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]), 
+#         base_url="https://109.199.116.46", 
+#         client_kwargs={'verify': False}, 
+#         verbose=True
+#     )
+#     return model
+
+# def run_analysis(content):
+#     # prompt = f"""
+#     # Analyze the following text for sentiment, potential reputation impact, and actionable suggestions:
+#     # "{content}"
+#     # Provide the analysis in JSON format with keys 'sentiment', 'reputation_impact', and 'actionable_suggestions'.
+#     # when respond use the Arabic language.
+#     # """
+    
+#     prompt = f"""
+#     Analyze the following text for sentiment, potential reputation impact, and actionable suggestions:
+#     "{content}"
+#     Provide the analysis in JSON format with keys 'overall_sentiment', 'sentiment_reasons', 'potential_impact',
+#     'impact_reasons', 'suggestions', and 'rationale'.
+#     Respond in the Arabic language.
+#     Make the values as float number and make sure to follow these rules:
+#     1- the range is from -1.0 to 1.0.
+#     """
+#     model = setup_model()
+#     result = model.invoke(prompt)
+    
+#     try:
+#         start_index = result.index('{')
+#         end_index = result.rindex('}') + 1
+#         json_string = result[start_index:end_index]
+#         parsed_result = json.loads(json_string)
+#     except (ValueError, json.JSONDecodeError):
+#         st.error("Failed to parse the analysis response.")
+#         st.write(result)
+#         return "Error", "Error", "Error", "Error", "Error", "Error", 2
+
+#     sentiment = parsed_result.get("overall_sentiment", {})
+#     sentiment_reasons = parsed_result.get("sentiment_reasons", [])
+#     impact = parsed_result.get("potential_impact", {})
+#     impact_reasons = parsed_result.get("impact_reasons", [])
+#     suggestions = parsed_result.get("suggestions", [])
+#     rationale = parsed_result.get("rationale", [])
+#     priority = 1 if suggestions != "لا توجد اقتراحات" else 2
+
+#     return sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority
+
+# # Display and validate data with analysis
+# def display_data_validation():
+#     st.title("Data Validation and Analysis")
+
+#     unvalidated_data = fetch_unvalidated_data()
+#     if not unvalidated_data:
+#         st.write("All data has been validated.")
+#         return
+#     # sentiment = None
+#     # sentiment_reasons = None
+#     # impact = None
+#     # impact_reasons = None
+#     # suggestions = None
+#     # rationale = None
+#     # priority = None
+    
+#     for data in unvalidated_data:
+#         data_id, source, content = data
+#         with st.expander(f"Source: {source}"):
+#             st.write(f"**Content:** {content}")
+#             # st.write(f"**Sentiment (Initial):** {sentiment}")
+            
+#             if st.button("Analyze Content", key=f"analyze_{data_id}"):
+#                 with st.spinner("Analyzing content..."):
+#                     sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority = run_analysis(content)
+#                     save_analysis_results(data_id, sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority)
+#                     st.success("Analysis complete and results saved.")
+#                     st.write("### Analysis Report")
+#                     st.write(sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority)
+#                     # st.rerun()
+
+#             col1, col2 = st.columns(2)
+#             with col1:
+#                 if st.button("Mark as Valid", key=f"valid_{data_id}"):
+#                     mark_as_validated(data_id, True)
+#                     # save_analysis_results(data_id, sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority)
+#                     # st.success("Analysis complete and results saved.")
+#                     st.success("Data marked as valid.")
+#                     st.rerun()
+#             with col2:
+#                 if st.button("Mark as Invalid", key=f"invalid_{data_id}"):
+#                     mark_as_validated(data_id, False)
+#                     st.warning("Data marked as invalid.")
+#                     st.rerun()
+
+# # Run the page function
+# display_data_validation()
+
+
 import streamlit as st
 import sqlite3
+import pandas as pd
 from langchain_ollama import OllamaLLM  # Import the Ollama class
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.callbacks.manager import CallbackManager
@@ -97,11 +269,12 @@ from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputP
 from langchain.agents.format_scratchpad.openai_tools import format_to_openai_tool_messages
 from langchain.agents import AgentExecutor
 import json
-# Establish connection to the database
+
+# Database connection
 def get_connection():
     return sqlite3.connect("reputation_management.db")
 
-# Fetch unvalidated data from the database
+# Fetch data functions
 def fetch_unvalidated_data():
     conn = get_connection()
     cursor = conn.cursor()
@@ -146,15 +319,44 @@ def save_analysis_results(data_id, sentiment, sentiment_reasons, impact, impact_
     conn.commit()
     conn.close()
 
-
-
-# Mark a data entry as validated in the database
-def mark_as_validated(data_id, valid):
+def fetch_validated_data():
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE monitoring_data SET validated = ? WHERE id = ?", (1 if valid else 0, data_id))
-    conn.commit()
+    cursor.execute("SELECT id, source, content FROM monitoring_data WHERE validated = 1")
+    data = cursor.fetchall()
     conn.close()
+    return data
+
+def mark_as_validated_or_delete(data_id, valid):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        if valid:
+            # Mark as validated
+            rows_updated = cursor.execute(
+                "UPDATE monitoring_data SET validated = ? WHERE id = ?", 
+                (1, int(data_id))
+            ).rowcount
+            if rows_updated == 0:
+                print(f"No row found with id {data_id}")
+            else:
+                print(f"Row with id {data_id} successfully updated to validated.")
+        else:
+            # Delete if invalidated
+            rows_deleted = cursor.execute(
+                "DELETE FROM monitoring_data WHERE id = ?", 
+                (int(data_id),)
+            ).rowcount
+            if rows_deleted == 0:
+                print(f"No row found with id {data_id} to delete.")
+            else:
+                print(f"Row with id {data_id} successfully deleted.")
+        conn.commit()
+    except Exception as e:
+        print(f"Error processing row: {e}")
+    finally:
+        conn.close()
+
 
 # Initialize the model for analysis
 def setup_model():
@@ -168,6 +370,7 @@ def setup_model():
         verbose=True
     )
     return model
+
 
 def run_analysis(content):
     # prompt = f"""
@@ -209,50 +412,57 @@ def run_analysis(content):
 
     return sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority
 
-# Display and validate data with analysis
+
+# Display data in interactive tables
 def display_data_validation():
     st.title("Data Validation and Analysis")
 
-    unvalidated_data = fetch_unvalidated_data()
-    if not unvalidated_data:
-        st.write("All data has been validated.")
-        return
-    # sentiment = None
-    # sentiment_reasons = None
-    # impact = None
-    # impact_reasons = None
-    # suggestions = None
-    # rationale = None
-    # priority = None
-    
-    for data in unvalidated_data:
-        data_id, source, content = data
-        with st.expander(f"Source: {source}"):
-            st.write(f"**Content:** {content}")
-            # st.write(f"**Sentiment (Initial):** {sentiment}")
-            
-            if st.button("Analyze Content", key=f"analyze_{data_id}"):
-                with st.spinner("Analyzing content..."):
-                    sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority = run_analysis(content)
-                    save_analysis_results(data_id, sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority)
-                    st.success("Analysis complete and results saved.")
-                    st.write("### Analysis Report")
-                    st.write(sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority)
-                    # st.rerun()
+    tab1, tab2 = st.tabs(["Non-Validated Data", "Validated Data"])
 
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("Mark as Valid", key=f"valid_{data_id}"):
-                    mark_as_validated(data_id, True)
-                    # save_analysis_results(data_id, sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority)
-                    # st.success("Analysis complete and results saved.")
-                    st.success("Data marked as valid.")
-                    st.rerun()
-            with col2:
-                if st.button("Mark as Invalid", key=f"invalid_{data_id}"):
-                    mark_as_validated(data_id, False)
-                    st.warning("Data marked as invalid.")
-                    st.rerun()
+    # Non-Validated Data
+    with tab1:
+        st.subheader("Non-Validated Data")
+        unvalidated_data = fetch_unvalidated_data()
+        if not unvalidated_data:
+            st.info("All data has been validated.")
+        else:
+            # Convert to DataFrame for a structured table
+            unvalidated_df = pd.DataFrame(unvalidated_data, columns=["ID", "Source", "Content"])
 
-# Run the page function
+            # Add action buttons
+            for index, row in unvalidated_df.iterrows():
+                st.write("---")
+                col1, col2, col3 = st.columns([1, 7, 2])
+                with col1:
+                    st.write(f"**ID:** {row['ID']}")
+                with col2:
+                    st.write(f"**Content:** {row['Content']}")
+                # with col3:
+                #     if st.button(f"Mark Valid {row['ID']}", key=f"valid_{row['ID']}"):
+                #         mark_as_validated_or_delete(row["ID"], True)
+                #         st.rerun()
+                with col3:
+                    if st.button(f"Mark Invalid", key=f"invalid_{row['ID']}"):
+                        mark_as_validated_or_delete(row["ID"], False)
+                        st.rerun()
+                    if st.button(f"Analyze", key=f"analyze_{row['ID']}"):
+                        with st.spinner("Analyzing content..."):
+                            sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority = run_analysis(row['Content'])
+                            save_analysis_results(row['ID'], sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority)
+                            # st.success("Analysis complete and results saved.")
+                            # st.write("### Analysis Report")
+                            # st.write(sentiment, sentiment_reasons, impact, impact_reasons, suggestions, rationale, priority)
+                            st.info(f"Analysis for ID {row['ID']}: Content analyzed.")
+
+    # Validated Data
+    with tab2:
+        st.subheader("Validated Data")
+        validated_data = fetch_validated_data()
+        if not validated_data:
+            st.info("No validated data available.")
+        else:
+            validated_df = pd.DataFrame(validated_data, columns=["ID", "Source", "Content"])
+            st.dataframe(validated_df, use_container_width=True)
+
+# Run the application
 display_data_validation()
