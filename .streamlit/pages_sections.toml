@@ -4,6 +4,11 @@ icon = "⚙️"
 is_section = true
 
 [[pages]]
+name = "Dashboard"
+icon = ""
+path = "pages/dashboard.py"
+
+[[pages]]
 name = "Company Initialization and Setup"
 icon = "🏢"
 path = "pages/initialization_page.py"

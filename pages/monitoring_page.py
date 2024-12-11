@@ -351,6 +351,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 import docx
 import time
+from streamlit_option_menu import option_menu
 
 # Page Configuration
 # st.set_page_config(
@@ -418,6 +419,42 @@ st.markdown("""
 def get_connection():
     return sqlite3.connect("reputation_management.db")
 
+# # Google Custom Search API Function
+# def google_search(query, date_filter_type=None, date_filter_value=None):
+#     API_KEY = 'AIzaSyC_0LAqVIA0Z7YLbbWKSOHxY0_sMaqQAko'
+#     CSE_ID = 'b13bba6a528214af0'
+#     search_url = "https://www.googleapis.com/customsearch/v1"
+    
+#     dateRestrict = ""
+#     if date_filter_type == "Days":
+#         dateRestrict = f"d{date_filter_value}"
+#     elif date_filter_type == "Weeks":
+#         dateRestrict = f"w{date_filter_value}"
+#     elif date_filter_type == "Months":
+#         dateRestrict = f"m{date_filter_value}"
+#     elif date_filter_type == "Years":
+#         dateRestrict = f"y{date_filter_value}"
+    
+#     params = {
+#         "key": API_KEY,
+#         "cx": CSE_ID,
+#         "q": f'allintitle:{query}',
+#         "num": 5,
+#         "dateRestrict": dateRestrict
+#     }
+    
+#     response = requests.get(search_url, params=params)
+#     return response.json() if response.status_code == 200 else None
+
+# # Extract Full Content Function
+# def extract_full_content(url):
+#     try:
+#         g = Goose()
+#         article = g.extract(url=url)
+#         return article.cleaned_text
+#     except:
+#         return "Could not extract content."
+
 # Google Custom Search API Function
 def google_search(query, date_filter_type=None, date_filter_value=None):
     API_KEY = 'AIzaSyC_0LAqVIA0Z7YLbbWKSOHxY0_sMaqQAko'
@@ -437,8 +474,8 @@ def google_search(query, date_filter_type=None, date_filter_value=None):
     params = {
         "key": API_KEY,
         "cx": CSE_ID,
-        "q": f'allintitle:{query}',
-        "num": 5,
+        "q": query,
+        "num": 10,
         "dateRestrict": dateRestrict
     }
     
@@ -511,9 +548,15 @@ def create_docx_file(results):
 # Main Content with Tabs
 st.title("🌍 Real-Time Monitoring and Data Collection")
 
-tabs = st.tabs(["Monitoring", "Live Feed"])
-
-with tabs[0]:
+# tabs = st.tabs(["Monitoring", "Live Feed"])
+selected_tab = option_menu(
+    menu_title=None,
+    options=["Monitoring", "Live Feed"],
+    icons=["monitoring", "live-feed"],
+    default_index=0,
+    orientation="horizontal",
+)
+if selected_tab == "Monitoring":
     # Monitoring Tab
     search_query = st.text_input("🔍 Enter Keywords for Monitoring")
     date_filter_type = st.selectbox("📅 Choose Time Range", ["No Filter", "Days", "Weeks", "Months", "Years"])
@@ -523,6 +566,7 @@ with tabs[0]:
     if start_monitoring and search_query:
         st.write(f"Searching for **{search_query}**...")
         results = google_search(search_query, date_filter_type, date_filter_value)
+        print(results)
 
         if results:
             st.session_state["results_data"] = [
@@ -568,7 +612,7 @@ with tabs[0]:
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             )
 
-with tabs[1]:
+elif selected_tab == "Live Feed":
     # Live Feed Tab
     st.header("📡 Live Feed")
     st.write("This section will display a real-time feed of monitored data or updates.")

@@ -1,4 +1,10 @@
 # pages.toml
+
+[[pages]]
+name = "Dashboard"
+icon = ""
+path = "pages/dashboard.py"
+
 [[pages]]
 name = "Initialization and Setup"
 icon = "⚙️"

@@ -217,6 +217,7 @@ import plotly.express as px
 from langchain_ollama import OllamaLLM
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from streamlit_option_menu import option_menu
 
 
 # Database connection
@@ -521,7 +522,7 @@ def get_total_issue_count(status, source_filter, priority_filter, sentiment_filt
 #             if st.button("Mark as Resolved", key=f"resolve_{issue_id}"):
 #                 mark_monitoring_issue_as_resolved(issue_id)
 #                 st.success("Issue marked as resolved.")
-#                 st.experimental_rerun()
+#                 st.rerun()
 
 #     # Pagination
 #     total_pages = (total_issues - 1) // page_size + 1
@@ -601,13 +602,14 @@ def display_issues(status):
                 # AI-Powered Solution Button
                 if st.button(f"Get AI Solution for Issue #{issue_id}", key=f"ai_solution_{issue_id}"):
                     solution = generate_monitoring_model_suggestions(source, sentiment, priority, content, potential_impact, suggestions)  # Call your Ollama model
+                    print(solution)
                     st.write(f"**Suggested Solution:** {solution}")
 
             # Mark as resolved button
             if st.button("Mark as Resolved", key=f"resolve_{issue_id}"):
                 mark_monitoring_issue_as_resolved(issue_id)
                 st.success("Issue marked as resolved.")
-                st.experimental_rerun()
+                st.rerun()
 
     # Pagination
     total_pages = (total_issues - 1) // page_size + 1
@@ -637,18 +639,25 @@ def display_insights():
 
 # Main Application
 st.title("Reputation Risk Management")
+# Tabs Implementation
+selected_tab = option_menu(
+    menu_title=None,
+    options=["Unresolved Issues", "Resolved Issues", "Insights"],
+    icons=["unresolved-issues", "resolved-issues", "insights" ],
+    default_index=0,
+    orientation="horizontal",
+)
+# tab1, tab2, tab3 = st.tabs(["Unresolved Issues", "Resolved Issues", "Insights"])
 
-tab1, tab2, tab3 = st.tabs(["Unresolved Issues", "Resolved Issues", "Insights"])
-
-with tab1:
+if selected_tab == "Unresolved Issues":
     st.header("Unresolved Issues")
     display_issues("Unresolved")
 
-with tab2:
+elif selected_tab == "Resolved Issues":
     st.header("Resolved Issues")
     display_issues("Resolved")
 
-with tab3:
+elif selected_tab == "Insights":
     st.header("Insights")
     display_insights()
 
